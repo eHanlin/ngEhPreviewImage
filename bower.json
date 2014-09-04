@@ -1,0 +1,20 @@
+{
+  "name": "ng-eh-preview-image",
+  "version": "0.0.1",
+  "authors": [
+    "sparrow.jang <sparrow.jang@gmail.com>"
+  ],
+  "description": "Preview a image by canvas",
+  "dependencies": {
+    "angular": "~1.2.23",
+    "font-awesome":"~4.2.0",
+    "jquery": "~1.11.1"
+  },
+  "keywords": [
+    "angular",
+    "preview",
+    "canvas",
+    "image"
+  ],
+  "license": "MIT"
+}
