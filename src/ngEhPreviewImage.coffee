@@ -25,6 +25,31 @@ app.directive 'ngEhPreviewImage', [ '$q', '$timeout', ( $q, $timeout )->
     $div.appendTo document.body
     deferred.promise
 
+
+  getScale = ( oW, oH, w, h )->
+
+    rateW = w / oW
+    rateH = h / oH
+    if rateW < rateH then rateW else rateH
+
+  resize = ( image, width, height )->
+    deferred = $q.defer()
+    tmpImg = new Image
+    canvas = document.createElement 'canvas'
+    canvas.width = width
+    canvas.height = height
+    ctx = canvas.getContext '2d'
+    ctx.drawImage image, 0, 0, width, height
+    tmpImg.onload = ->
+      deferred.resolve img:tmpImg, size:{width:width,height:height}
+    tmpImg.src = canvas.toDataURL 'image/png'
+    deferred.promise
+
+  resizeByScale = ( image, width, height )->
+
+    scale = getScale image.width, image.height, width, height
+    resize image, scale * image.width, scale * image.height
+
   scope:
     img:"="
 
@@ -42,6 +67,8 @@ app.directive 'ngEhPreviewImage', [ '$q', '$timeout', ( $q, $timeout )->
     clearTimePromise= null
     enabledUpdated = true
     promise = null
+    isIos = /(ipad)|(iphone)/i.test navigator.userAgent
+
 
     render = ( source, size )->
 
@@ -83,10 +110,22 @@ app.directive 'ngEhPreviewImage', [ '$q', '$timeout', ( $q, $timeout )->
 
         promise = getImageSize scope.img.data
 
-        promise.then ( detail )->
+        promise.then ( imgDetail )->
 
-          currentSize = if currentSize then currentSize else detail.size
-          render detail.img, detail.size
+          renderImage_ = ( detail )->
+            currentSize = if currentSize then currentSize else detail.size
+            render detail.img, detail.size
+
+          resizeWidth = 1924
+
+          #fixed ios max size
+          if isIos and  (resizeWidth < imgDetail.size.width or resizeWidth < imgDetail.size.height)
+            resizePromise = resizeByScale imgDetail.img, resizeWidth, resizeWidth
+            resizePromise.then ( resizeDetail )->
+              renderImage_ resizeDetail
+          else
+            renderImage_ imgDetail
+
 
     angular.extend scope,
 

@@ -17,7 +17,7 @@ gulp.task('less', function () {
 
 });
 
-gulp.task('server', ["coffee","less"], function () {
+gulp.task('server', ["coffee","less","watch"], function () {
   plugins.connect.server({
     root: ['bower_components', '.tmp', 'src'],
     port: port,
@@ -27,6 +27,10 @@ gulp.task('server', ["coffee","less"], function () {
          .on('end',function(){
            require('opn')('http://localhost:' + port + '/')
   });
+});
+
+gulp.task('watch',function(){
+  gulp.watch('./src/*.coffee', ['coffee']);
 });
 
 gulp.task('build', function(){
